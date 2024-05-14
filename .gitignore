@@ -1,0 +1,6 @@
+.vscode
+.env
+.scannerwork
+node_modules
+coverage
+.eslintcache

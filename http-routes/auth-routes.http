@@ -1,0 +1,29 @@
+@host = http://localhost:3001
+@service-prefix = user-service
+# @host = http://localhost:31100
+
+# @name register
+POST {{host}}/{{service-prefix}}/register
+content-type: application/json
+
+{
+    "email": "john.doe322@gmail.com",
+    "name": "John Doe",
+    "taxVat": "12312232122",
+    "password": "john.123",
+    "role": "ADMIN"
+}
+
+### 
+
+# @name auth
+POST {{host}}/{{service-prefix}}/auth
+content-type: application/json
+
+{
+    "email": "john.doe322@gmail.com",
+    "password": "john.123"
+}
+
+### 
+

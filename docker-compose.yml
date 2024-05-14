@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  user-db:
+    image: bitnami/postgresql
+    volumes:
+      - db_data:/bitnami/postgresql
+    ports:
+      - 5001:5432
+    environment:
+      - POSTGRESQL_USERNAME=user-db-read-write
+      - POSTGRESQL_PASSWORD=4b0c9f4a-9c1e-4f52-9a2c-2b3a1f5e9d67
+      - POSTGRESQL_DATABASE=user-db
+
+volumes:
+  db_data:

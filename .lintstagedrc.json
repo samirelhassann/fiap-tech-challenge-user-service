@@ -1,0 +1,4 @@
+{
+  "**/*.(ts|tsx|js)": "eslint --cache --max-warnings=3 --fix",
+  "/**/*.json": "prettier --write"
+}

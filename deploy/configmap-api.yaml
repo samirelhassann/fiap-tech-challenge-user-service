@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  labels:
+    name: api-config
+data:
+  POSTGRES_URL: "postgresql://user-db-read-write:4b0c9f4a-9c1e-4f52-9a2c-2b3a1f5e9d67@localhost:5001/user-db?schema=public"
+  JWT_SECRET: "jwt_secret"

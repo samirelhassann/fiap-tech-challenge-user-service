@@ -1,0 +1,26 @@
+@host = http://localhost:3001
+@service-prefix = user-service
+# @host = http://localhost:31100
+
+
+# @name get-users
+GET {{host}}/{{service-prefix}}/users
+
+###
+
+# @name get-user-by-id
+GET {{host}}/{{service-prefix}}/users/e987892a-cc6e-452f-a9e9-418750607699
+
+###
+
+# @name edit-user
+PUT {{host}}/{{service-prefix}}/users/dce1cf4a-aa2a-4b20-9a16-abd36ab7fb72
+content-type: application/json
+
+
+{
+    "email": "john.23@gmail.com",
+    "name": "John Doe ALTERED"
+}
+
+

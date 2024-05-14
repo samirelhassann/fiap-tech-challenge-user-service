@@ -1,0 +1,126 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'deploy/**'
+      - '**.js'
+      - '**.json'
+
+jobs:
+  run-unit-tests:
+    name: 🧪 Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn run test
+
+  sonarcloud-analysis:
+    name: 🔍 SonarCloud Analysis
+    needs: run-unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+        
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'temurin'
+      
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ./
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  update-image:
+    name: 📝 Update Image
+    needs: run-unit-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure Azure Credentials
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
+
+      - name: Build and push Docker image to ACR
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+          IMAGE_NAME=${{ secrets.IMAGE_NAME }}
+          docker build -t $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG .
+          docker push $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG
+          docker tag $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG $ACR_REGISTRY/$IMAGE_NAME:latest
+          docker push $ACR_REGISTRY/$IMAGE_NAME:latest
+
+  deploy-k8s-structure:
+    name: 🚀 Deploy K8S Structure
+    needs: [update-image]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure Azure Credentials
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets  .AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":" ${{ secrets.AZURE_TENANT_ID }}"}'
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.   AKS_CLUSTER_NAME }} --overwrite-existing --file ${{ github.workspace }}/kubeconfig
+        env:
+          RESOURCE_GROUP_NAME: ${{ secrets.RESOURCE_GROUP_NAME }}
+          AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+        shell: bash
+      - name: Update Deployment Image
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          IMAGE_NAME="${{ secrets.IMAGE_NAME }}:$VERSION_TAG"
+          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE_NAME|g" ./deploy/deployment-api.yaml
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+      - name: Configure ConfigMap
+        run: |
+          sed -i 's|POSTGRES_URL: ""|POSTGRES_URL: "${{ secrets.POSTGRES_URL }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_GENERATE_PAYMENT: ""|MERCADO_PAGO_GENERATE_PAYMENT: "${{ secrets.MERCADO_PAGO_GENERATE_PAYMENT }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_WEBHOOK_URL: ""|MERCADO_PAGO_WEBHOOK_URL: "${{ secrets.MERCADO_PAGO_WEBHOOK_URL }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_API_HOST: ""|MERCADO_PAGO_API_HOST: "${{ secrets.MERCADO_PAGO_API_HOST }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_BEARER_TOKEN: ""|MERCADO_PAGO_BEARER_TOKEN: "${{ secrets.MERCADO_PAGO_BEARER_TOKEN }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_USER_ID: ""|MERCADO_PAGO_USER_ID: "${{ secrets.MERCADO_PAGO_USER_ID }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|MERCADO_PAGO_EXTERNAL_POS_ID: ""|MERCADO_PAGO_EXTERNAL_POS_ID: "${{ secrets.MERCADO_PAGO_EXTERNAL_POS_ID }}"|' ./deploy/configmap-api.yaml
+          sed -i 's|JWT_SECRET: ""|JWT_SECRET: "${{ secrets.JWT_SECRET }}"|' ./deploy/configmap-api.yaml
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+      - name: Deploy to Kubernetes
+        run: |
+          export KUBECONFIG=${{ github.workspace }}/kubeconfig
+          kubectl apply -f ./deploy/
+
