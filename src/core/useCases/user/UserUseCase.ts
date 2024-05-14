@@ -1,7 +1,3 @@
-import { AttributeConflictError } from "@/core/domain/base/errors/useCases/AttributeConflictError";
-import { InvalidCredentialsError } from "@/core/domain/base/errors/useCases/InvalidCredentialsError";
-import { ResourceNotFoundError } from "@/core/domain/base/errors/useCases/ResourceNotFoundError";
-import { User } from "@/core/domain/entities/User";
 import { IUserRepository } from "@/core/interfaces/repositories/IUserRepository";
 
 import {
@@ -20,80 +16,49 @@ import {
   GetUsersUseCaseRequestDTO,
   GetUsersUseCaseResponseDTO,
 } from "./dto/GetUsersUseCaseDTO";
+import { CheckByTaxvatUseCase } from "./implementations/CheckByTaxvatUseCase";
+import { EditUserUseCase } from "./implementations/EditUserUseCase";
+import { GetUserByIdUseCase } from "./implementations/GetUserByIdUseCase";
+import { GetUsersUseCase } from "./implementations/GetUsersUseCase";
 import { IUserUseCase } from "./IUserUseCase";
 
 export class UserUseCase implements IUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  private getUsersUseCase: GetUsersUseCase;
 
-  async getUsers({
-    params,
-  }: GetUsersUseCaseRequestDTO): Promise<GetUsersUseCaseResponseDTO> {
-    const paginationResponse = await this.userRepository.findMany(params);
+  private checkUserByTaxvatUseCase: CheckByTaxvatUseCase;
 
-    return { paginationResponse };
+  private getUserByIdUseCase: GetUserByIdUseCase;
+
+  private editUserUseCase: EditUserUseCase;
+
+  constructor(private userRepository: IUserRepository) {
+    this.getUsersUseCase = new GetUsersUseCase(userRepository);
+    this.checkUserByTaxvatUseCase = new CheckByTaxvatUseCase(userRepository);
+    this.getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+    this.editUserUseCase = new EditUserUseCase(userRepository);
   }
 
-  async checkByTaxvat({
-    taxvat,
-  }: CheckUserByTaxvatUseCaseRequestDTO): Promise<CheckUserByTaxvatUseCaseResponseDTO> {
-    const user = await this.userRepository.findByTaxVat(taxvat);
-
-    if (!user) {
-      return { exist: false };
-    }
-
-    return { exist: true };
+  async getUsers(
+    props: GetUsersUseCaseRequestDTO
+  ): Promise<GetUsersUseCaseResponseDTO> {
+    return this.getUsersUseCase.execute(props);
   }
 
-  async getUserById({
-    id,
-  }: GetUserByIdUseCaseRequestDTO): Promise<GetUserByIdUseCaseResponseDTO> {
-    const user = await this.userRepository.findById(id);
-
-    if (!user) {
-      throw new ResourceNotFoundError(User.name);
-    }
-
-    return { user };
+  async checkByTaxvat(
+    props: CheckUserByTaxvatUseCaseRequestDTO
+  ): Promise<CheckUserByTaxvatUseCaseResponseDTO> {
+    return this.checkUserByTaxvatUseCase.execute(props);
   }
 
-  async editUser({
-    id,
-    email,
-    name,
-    authUserId,
-  }: EditUserUseCaseRequestDTO): Promise<EditUserUseCaseResponseDTO> {
-    if (!authUserId) {
-      throw new InvalidCredentialsError();
-    }
+  async getUserById(
+    props: GetUserByIdUseCaseRequestDTO
+  ): Promise<GetUserByIdUseCaseResponseDTO> {
+    return this.getUserByIdUseCase.execute(props);
+  }
 
-    const isTheUserHimself = id === authUserId;
-
-    if (!isTheUserHimself) {
-      throw new InvalidCredentialsError();
-    }
-
-    const user = await this.userRepository.findById(id);
-
-    if (!user) {
-      throw new ResourceNotFoundError(User.name);
-    }
-
-    if (email) {
-      const hasUserWithSameEmail = await this.userRepository.findByEmail(email);
-
-      if (hasUserWithSameEmail && hasUserWithSameEmail.id !== user.id) {
-        throw new AttributeConflictError<User>("email", User.name);
-      }
-      user.email = email;
-    }
-
-    if (name) {
-      user.name = name;
-    }
-
-    const updatedUser = await this.userRepository.update(user);
-
-    return { user: updatedUser };
+  async editUser(
+    props: EditUserUseCaseRequestDTO
+  ): Promise<EditUserUseCaseResponseDTO> {
+    return this.editUserUseCase.execute(props);
   }
 }

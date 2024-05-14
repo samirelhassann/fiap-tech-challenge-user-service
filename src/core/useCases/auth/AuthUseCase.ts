@@ -1,12 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
-import { AttributeConflictError } from "@/core/domain/base/errors/useCases/AttributeConflictError";
-import { InvalidCredentialsError } from "@/core/domain/base/errors/useCases/InvalidCredentialsError";
-import { User } from "@/core/domain/entities/User";
-import { Password } from "@/core/domain/valueObjects/Password";
-import { Role } from "@/core/domain/valueObjects/Role";
-import { Taxvat } from "@/core/domain/valueObjects/Taxvat";
 import { IUserRepository } from "@/core/interfaces/repositories/IUserRepository";
 
 import {
@@ -18,62 +12,28 @@ import {
   RegisterUseCaseResponseDTO,
 } from "./dto/RegisterUseCaseDTO";
 import { IAuthUseCase } from "./IAuthUseCase";
+import { AuthenticateUseCase } from "./implementations/AuthenticateUseCase";
+import { RegisterUseCase } from "./implementations/RegisterUseCase";
 
 export class AuthUseCase implements IAuthUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  private registerUseCase: RegisterUseCase;
 
-  async register({
-    taxVat,
-    name,
-    email,
-    password,
-    role,
-  }: RegisterUseCaseRequestDTO): Promise<RegisterUseCaseResponseDTO> {
-    const hasUserWithSameTaxVat =
-      await this.userRepository.findByTaxVat(taxVat);
+  private authenticateUseCase: AuthenticateUseCase;
 
-    if (hasUserWithSameTaxVat) {
-      throw new AttributeConflictError<User>("taxVat", User.name);
-    }
-
-    const hasUserWithSameEmail = await this.userRepository.findByEmail(email);
-
-    if (hasUserWithSameEmail) {
-      throw new AttributeConflictError<User>("email", User.name);
-    }
-
-    const userToCreate = new User({
-      email,
-      name,
-      taxVat: new Taxvat({ number: taxVat }),
-      passwordHash: new Password({ value: Password.valueToHash(password) }),
-      role: new Role({ name: role }),
-    });
-
-    await this.userRepository.create(userToCreate);
-
-    return {};
+  constructor(private userRepository: IUserRepository) {
+    this.registerUseCase = new RegisterUseCase(userRepository);
+    this.authenticateUseCase = new AuthenticateUseCase(userRepository);
   }
 
-  async authenticate({
-    email,
-    password,
-  }: AuthenticateUseCaseRequestDTO): Promise<AuthenticateUseCaseResponseDTO> {
-    const user = await this.userRepository.findByEmail(email);
+  async register(
+    props: RegisterUseCaseRequestDTO
+  ): Promise<RegisterUseCaseResponseDTO> {
+    return this.registerUseCase.execute(props);
+  }
 
-    if (!user) {
-      throw new InvalidCredentialsError();
-    }
-
-    const isPasswordValid = user.passwordHash.comparePassword(password);
-
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsError();
-    }
-
-    return {
-      role: user.role.name,
-      userId: user.id.toValue(),
-    };
+  async authenticate(
+    props: AuthenticateUseCaseRequestDTO
+  ): Promise<AuthenticateUseCaseResponseDTO> {
+    return this.authenticateUseCase.execute(props);
   }
 }
