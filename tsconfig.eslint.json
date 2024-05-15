@@ -1,7 +1,10 @@
 {
     "extends": "./tsconfig.json",
     "include": [
-        "src/**/*",
-        "test/**/*",
+        "src/**/*.ts",
+        "src/**/*.js",
+        "test/**/*.ts",
+        "features/**/*.ts",
+        "cucumber.js",
     ]
 }
