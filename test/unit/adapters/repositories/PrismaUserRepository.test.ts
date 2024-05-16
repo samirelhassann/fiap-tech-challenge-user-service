@@ -32,7 +32,7 @@ beforeEach(() => {
 
 describe("PrismaUserRepository", () => {
   describe("findById", () => {
-    it.only("should find user by id", async () => {
+    it("should find user by id", async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(user);
 
       const result = await repository.findById(user.id);
@@ -43,7 +43,7 @@ describe("PrismaUserRepository", () => {
       expect(result).toEqual(PrismaUserToDomainConverter.convert(user));
     });
 
-    it.only("should return null if user not found", async () => {
+    it("should return null if user not found", async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
 
       const result = await repository.findById(user.id);
@@ -53,7 +53,7 @@ describe("PrismaUserRepository", () => {
   });
 
   describe("findByTaxVat", () => {
-    it.only("should find user by taxVat", async () => {
+    it("should find user by taxVat", async () => {
       const taxVatToSearch = user.tax_vat;
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(user);
 
@@ -65,7 +65,7 @@ describe("PrismaUserRepository", () => {
       expect(result).toEqual(PrismaUserToDomainConverter.convert(user));
     });
 
-    it.only("should return null if user not found", async () => {
+    it("should return null if user not found", async () => {
       const taxVatToSearch = "123";
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
 
@@ -76,7 +76,7 @@ describe("PrismaUserRepository", () => {
   });
 
   describe("findByEmail", () => {
-    it.only("should find user by email", async () => {
+    it("should find user by email", async () => {
       const emailToSearch = user.email;
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(user);
 
@@ -88,7 +88,7 @@ describe("PrismaUserRepository", () => {
       expect(result).toEqual(PrismaUserToDomainConverter.convert(user));
     });
 
-    it.only("should return null if user not found", async () => {
+    it("should return null if user not found", async () => {
       const emailToSearch = user.email;
       vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
 
@@ -99,7 +99,7 @@ describe("PrismaUserRepository", () => {
   });
 
   describe("findMany", () => {
-    it.only("should find many users with pagination", async () => {
+    it("should find many users with pagination", async () => {
       const users = [user];
       const totalItems = users.length;
       const paginationParams = new PaginationParams(1, 10);
@@ -127,7 +127,7 @@ describe("PrismaUserRepository", () => {
   });
 
   describe("create", () => {
-    it.only("should create a new user", async () => {
+    it("should create a new user", async () => {
       const userToCreate = makeUser();
       vi.mocked(prisma.user.create).mockResolvedValueOnce(user);
 
@@ -147,7 +147,7 @@ describe("PrismaUserRepository", () => {
   });
 
   describe("update", () => {
-    it.only("should update an existing user", async () => {
+    it("should update an existing user", async () => {
       const userToUpdate = makeUser();
       vi.mocked(prisma.user.update).mockResolvedValueOnce(user);
 
