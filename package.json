@@ -15,11 +15,11 @@
     "test": "vitest run --dir 'test/unit'",
     "test-watch": "vitest",
     "coverage": "vitest run --coverage --dir 'test/unit'",
-    "test:create-prisma-environment": "cd ./test/e2e/prisma/vitest-environment-prisma && yarn link && cd ../../../",
+    "test:create-prisma-environment": "cd ./test/bdd/prisma/vitest-environment-prisma && yarn link && cd ../../../",
     "test:install-prisma-environment": "yarn link vitest-environment-prisma",
-    "pretest:e2e": "yarn test:create-prisma-environment && yarn test:install-prisma-environment",
-    "test:e2e": "vitest run --dir test/e2e",
-    "test:e2e:local": "docker-compose up -d && yarn test:e2e && docker-compose down",
+    "pretest:bdd": "yarn test:create-prisma-environment && yarn test:install-prisma-environment",
+    "test:bdd": "vitest run --dir test/bdd",
+    "test:bdd:local": "docker-compose up -d && yarn test:bdd && docker-compose down",
     "sonar": "node sonar-project.js"
   },
   "prisma": {

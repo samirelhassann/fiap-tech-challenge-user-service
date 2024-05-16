@@ -26,7 +26,7 @@ export default <Environment>{
     process.env.DATABASE_URL = databaseUrl;
 
     execSync("yarn prisma migrate deploy");
-    // execSync("npx ts-node src/drivers/db/prisma/seed-e2e.ts");
+    execSync("npx ts-node test/bdd/prisma/seed-bdd.ts");
 
     return {
       async teardown() {

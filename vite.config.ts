@@ -6,7 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
-    environmentMatchGlobs: [["test/e2e/**", "prisma"]],
+    environmentMatchGlobs: [["test/bdd/**", "prisma"]],
     include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"],
     exclude: [
       "**/node_modules/**",

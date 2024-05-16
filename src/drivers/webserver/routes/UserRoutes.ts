@@ -7,7 +7,6 @@ import { getUsersDocSchema } from "@/adapters/controllers/user/schemas/GetUsersS
 import { UserController } from "@/adapters/controllers/user/UserController";
 import verifyJwt from "@/adapters/middlewares/verifyJwt";
 import { CheckUserByTaxvatPresenter } from "@/adapters/presenters/user/CheckUserByTaxvatPresenter";
-import { CreateUserPresenter } from "@/adapters/presenters/user/CreateUserPresenter";
 import { EditUserPresenter } from "@/adapters/presenters/user/EditUserPresenter";
 import { GetUserByIdPresenter } from "@/adapters/presenters/user/GetUserByIdPresenter";
 import { GetUsersPresenter } from "@/adapters/presenters/user/GetUsersPresenter";
@@ -20,7 +19,6 @@ export async function UserRoutes(app: FastifyInstance) {
 
     new GetUsersPresenter(),
     new GetUserByIdPresenter(),
-    new CreateUserPresenter(),
     new EditUserPresenter(),
     new CheckUserByTaxvatPresenter()
   );
