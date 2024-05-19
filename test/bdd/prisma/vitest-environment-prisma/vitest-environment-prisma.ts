@@ -9,6 +9,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 function generateDatabaseURL(schema: string) {
+  console.log(`• [LOG] - env.DATABASE_URL`, env.DATABASE_URL);
+
   const url = new URL(env.DATABASE_URL);
 
   url.searchParams.set("schema", schema);
