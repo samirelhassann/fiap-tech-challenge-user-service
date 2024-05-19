@@ -27,9 +27,6 @@ jobs:
   run-bdd-tests:
     name: 🧪 Run BDD Tests
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -37,6 +34,12 @@ jobs:
           node-version: 18
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
+      - name: 'Create .env file'
+        run: |
+          touch .env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          cat .env
       - run: yarn test:bdd
 
   sonarcloud-analysis:
