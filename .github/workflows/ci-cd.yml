@@ -135,6 +135,10 @@ jobs:
           sed -i 's|JWT_SECRET: ""|JWT_SECRET: "${{ secrets.JWT_SECRET }}"|' ./deploy/configmap-api.yaml
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig
+      - name: Debug ConfigMap
+        run: cat ./deploy/configmap-api.yaml
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig          
       - name: Deploy to Kubernetes
         run: |
           export KUBECONFIG=${{ github.workspace }}/kubeconfig
