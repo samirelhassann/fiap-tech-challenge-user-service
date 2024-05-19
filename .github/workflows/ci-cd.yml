@@ -76,8 +76,8 @@ jobs:
 
   update-image:
     name: 📝 Update Image
-    needs: 
-      - sonarcloud-analysis
+    # needs: 
+    #   # - sonarcloud-analysis
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
@@ -131,8 +131,10 @@ jobs:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig
       - name: Configure ConfigMap
         run: |
-          sed -i "s|POSTGRES_URL: \"\"|POSTGRES_URL: \"${{ secrets.POSTGRES_URL }}\"|" ./deploy/configmap-api.yaml
-          sed -i "s|JWT_SECRET: \"\"|JWT_SECRET: \"${{ secrets.JWT_SECRET }}\"|" ./deploy/configmap-api.yaml
+          POSTGRES_URL_VALUE="${{ secrets.POSTGRES_URL }}"
+          JWT_SECRET_VALUE="${{ secrets.JWT_SECRET }}"
+          sed -i "s|POSTGRES_URL: \"\"|POSTGRES_URL: \"$POSTGRES_URL_VALUE\"|" ./deploy/configmap-api.yaml
+          sed -i "s|JWT_SECRET: \"\"|JWT_SECRET: \"$JWT_SECRET_VALUE\"|" ./deploy/configmap-api.yaml
         env:
           KUBECONFIG: ${{ github.workspace }}/kubeconfig
       - name: Debug ConfigMap
