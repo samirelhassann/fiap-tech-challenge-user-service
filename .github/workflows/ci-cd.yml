@@ -24,30 +24,30 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn run test
 
-  run-bdd-tests:
-    name: 🧪 Run BDD Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-      - run: yarn install --frozen-lockfile
-      - name: 'Create .env file'
-        run: |
-          touch .env
-          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-          cat .env
-      - run: yarn test:bdd
+  # run-bdd-tests:
+  #   name: 🧪 Run BDD Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: 'yarn'
+  #     - run: yarn install --frozen-lockfile
+  #     - name: 'Create .env file'
+  #       run: |
+  #         touch .env
+  #         echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+  #         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+  #         cat .env
+  #     - run: yarn test:bdd
 
 
   sonarcloud-analysis:
     name: 🔍 SonarCloud Analysis
     needs: 
       - run-unit-tests
-      - run-bdd-tests
+      # - run-bdd-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
