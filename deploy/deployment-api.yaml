@@ -4,6 +4,7 @@ metadata:
   name: deployment-api
   labels:
     app: deployment-api
+  namespace: user-service
 spec:
   replicas: 1
   selector:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
       - name: deployment-api
-        image: samirelhassan/fiap-tech-challenge-04-user-service:latest
+        image: fiaptechchallenge04acr.azurecr.io/tech-challenge-04-user-image
         imagePullPolicy: Always
         resources:
           limits:
@@ -36,26 +37,3 @@ spec:
             configMapKeyRef:
               name: api-config
               key: JWT_SECRET
-        
-        # Probes
-        # startupProbe:
-        #   httpGet:
-        #     path: /health-start
-        #     port: 3001
-        #   failureThreshold: 30 
-        #   periodSeconds: 10    
-        #   initialDelaySeconds: 180 # becausa of the memory config 
-        # readinessProbe:
-        #   httpGet:
-        #     path: /health-read
-        #     port: 3001
-        #   initialDelaySeconds: 180 # becausa of the memory config
-        #   periodSeconds: 10
-        #   failureThreshold: 3
-        # livenessProbe:
-        #   httpGet:
-        #     path: /health-live
-        #     port: 3001
-        #   initialDelaySeconds: 180 # becausa of the memory config
-        #   periodSeconds: 10
-        #   failureThreshold: 5 

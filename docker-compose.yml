@@ -4,7 +4,7 @@ services:
   user-db:
     image: bitnami/postgresql
     volumes:
-      - db_data:/bitnami/postgresql
+      - user-db-volume:/bitnami/postgresql
     ports:
       - 5001:5432
     environment:
@@ -13,4 +13,4 @@ services:
       - POSTGRESQL_DATABASE=user-db
 
 volumes:
-  db_data:
+  user-db-volume:

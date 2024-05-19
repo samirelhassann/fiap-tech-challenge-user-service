@@ -4,6 +4,7 @@ metadata:
   labels:
     app: deployment-api
   name: svc-api
+  namespace: user-service
 spec:
   selector:
     app: deployment-api
