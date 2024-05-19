@@ -4,6 +4,7 @@ metadata:
   name: api-config
   labels:
     name: api-config
+  namespace: user-service
 data:
   POSTGRES_URL: ""
   JWT_SECRET: ""
