@@ -15,7 +15,7 @@
     "test": "vitest run --dir 'test/unit'",
     "test-watch": "vitest",
     "coverage": "vitest run --coverage --dir 'test/unit'",
-    "test:create-prisma-environment": "cd ./test/bdd/prisma/vitest-environment-prisma && yarn link && cd ../../../",
+    "test:create-prisma-environment": "pwd && cd ./test/bdd/prisma/vitest-environment-prisma && yarn unlink && yarn link && cd ../../../",
     "test:install-prisma-environment": "yarn link vitest-environment-prisma",
     "pretest:bdd": "yarn test:create-prisma-environment && yarn test:install-prisma-environment",
     "test:bdd": "vitest run --dir test/bdd",
