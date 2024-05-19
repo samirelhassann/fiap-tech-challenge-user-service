@@ -104,8 +104,8 @@ jobs:
 
   deploy-k8s-structure:
     name: 🚀 Deploy K8S Structure
-    needs: 
-      - update-image  
+    # needs: 
+    #   - update-image  
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
