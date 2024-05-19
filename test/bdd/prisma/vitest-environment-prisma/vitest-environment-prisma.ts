@@ -3,17 +3,22 @@ import { randomUUID } from "crypto";
 import { execSync } from "node:child_process";
 import { Environment } from "vitest";
 
-import { env } from "@/config/env";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 function generateDatabaseURL(schema: string) {
-  const url = new URL(env.DATABASE_URL);
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is not defined");
+  }
 
-  url.searchParams.set("schema", schema);
-
-  return url.toString();
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    url.searchParams.set("schema", schema);
+    return url.toString();
+  } catch (error) {
+    throw new Error(`Invalid DATABASE_URL: ${process.env.DATABASE_URL}`);
+  }
 }
 
 export default <Environment>{
