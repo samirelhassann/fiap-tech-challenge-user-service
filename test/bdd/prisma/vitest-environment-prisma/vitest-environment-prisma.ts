@@ -1,20 +1,14 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { randomUUID } from "crypto";
-import dotenv from "dotenv";
 import { execSync } from "node:child_process";
 import { Environment } from "vitest";
 
-import { env } from "@/config/env";
 import { PrismaClient } from "@prisma/client";
-
-dotenv.config();
 
 const prisma = new PrismaClient();
 
 function generateDatabaseURL(schema: string) {
-  console.log(`• [LOG] - env.DATABASE_URL`, env.DATABASE_URL);
-
-  const url = new URL(env.DATABASE_URL);
+  const url = new URL(process.env.DATABASE_URL!);
 
   url.searchParams.set("schema", schema);
 
