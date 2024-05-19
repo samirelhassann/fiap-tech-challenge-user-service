@@ -41,9 +41,7 @@ jobs:
           echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
           cat .env
       - run: yarn test:bdd
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
 
   sonarcloud-analysis:
     name: 🔍 SonarCloud Analysis
