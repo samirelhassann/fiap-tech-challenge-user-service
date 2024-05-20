@@ -72,8 +72,8 @@ jobs:
 
   update-image:
     name: 📝 Update Image
-    needs: 
-      - detect-changes
+    # needs: 
+    #   - sonarcloud-analysis
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
