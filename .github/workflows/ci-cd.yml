@@ -70,47 +70,32 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-
-  check-src-changes:
-    name: 🔍 Check for src Changes
+  changes:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
-      src-changed: ${{ steps.check.outputs.src_changed }}
+      src: ${{ steps.filter.outputs.src }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Check if src has changed
-        id: check
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            src:
-              - 'src/**'
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          src:
+            - 'src/**'
 
   update-image:
     name: 📝 Update Image
-    needs: 
-      # - sonarcloud-analysis
-      - check-src-changes
-    if: steps.check.outputs.src_changed == 'true'
     # needs: 
-    #   - sonarcloud-analysis
+      # - sonarcloud-analysis
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: 
+      - changes
+    if: ${{ needs.changes.outputs.src == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
-
-      # Stop job if no changes in src/
-      - name: Check for src changes
-        if: steps.filter.outputs.src == 'false'
-        run: echo "No changes in src/, skipping the rest of the job." && exit 0
 
       - name: Configure Azure Credentials
         uses: azure/login@v1
