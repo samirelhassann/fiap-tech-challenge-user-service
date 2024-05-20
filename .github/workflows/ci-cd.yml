@@ -70,8 +70,28 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+
+  check-src-changes:
+    name: 🔍 Check for src Changes
+    runs-on: ubuntu-latest
+    outputs:
+      src-changed: ${{ steps.check.outputs.src_changed }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check if src has changed
+        id: check
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            src:
+              - 'src/**'
+
   update-image:
     name: 📝 Update Image
+    needs: 
+      - sonarcloud-analysis
+      - check-src-changes
+    if: needs.check-src-changes.outputs.src-changed == 'true'
     # needs: 
     #   - sonarcloud-analysis
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
