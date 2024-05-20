@@ -14,7 +14,7 @@ on:
 
 jobs:
   run-unit-tests:
-    name: 🧪 Run Unit Tests
+    name: 🧪 Run Coverage Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,7 +24,7 @@ jobs:
           cache: 'yarn'
 
       - run: yarn install --frozen-lockfile
-      - run: yarn run test
+      - run: yarn run coverage
 
   run-bdd-tests:
     name: 🧪 Run BDD Tests
