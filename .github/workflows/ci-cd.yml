@@ -89,9 +89,9 @@ jobs:
   update-image:
     name: 📝 Update Image
     needs: 
-      - sonarcloud-analysis
+      # - sonarcloud-analysis
       - check-src-changes
-    if: needs.check-src-changes.outputs.src-changed == 'true'
+    if: steps.check.outputs.src_changed == 'true'
     # needs: 
     #   - sonarcloud-analysis
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
