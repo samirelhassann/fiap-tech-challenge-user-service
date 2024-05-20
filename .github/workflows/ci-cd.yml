@@ -70,23 +70,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  detect-changes:
-    name: 📝 Detect changes in src
-    runs-on: ubuntu-latest
-    needs: 
-      - sonarcloud-analysis
-    outputs:
-      src-changed: ${{ steps.detect.outputs.src }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set output if src/ changed
-        id: detect
-        run: |
-          git fetch
-          git diff --quiet HEAD^ HEAD ./src || echo "src=true" >> $GITHUB_ENV
-
   update-image:
     name: 📝 Update Image
     needs: 
@@ -96,6 +79,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'src/**'
+
+      # Stop job if no changes in src/
+      - name: Check for src changes
+        if: steps.filter.outputs.src == 'false'
+        run: echo "No changes in src/, skipping the rest of the job." && exit 0
 
       - name: Configure Azure Credentials
         uses: azure/login@v1
