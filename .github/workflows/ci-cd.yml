@@ -71,6 +71,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   changes:
+    name: 🔄 Changes
+    needs: 
+      - sonarcloud-analysis
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -86,12 +89,9 @@ jobs:
 
   update-image:
     name: 📝 Update Image
-    # needs: 
-      # - sonarcloud-analysis
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: 
       - changes
-    if: ${{ needs.changes.outputs.src == 'true' }}
+    if: ${{ needs.changes.outputs.src == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/master'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -119,7 +119,7 @@ jobs:
     name: 🚀 Deploy K8S Structure
     needs: 
       - update-image  
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: ${{ needs.changes.outputs.src == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/master'}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
