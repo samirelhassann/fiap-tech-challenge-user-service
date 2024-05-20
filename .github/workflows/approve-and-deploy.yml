@@ -1,0 +1,79 @@
+name: Approve and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      approve_deploy:
+        description: 'Approve deploy'
+        required: true
+        type: boolean
+
+jobs:
+  update-image:
+    name: 📝 Update Image
+    needs: 
+      - sonarcloud-analysis
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure Azure Credentials
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
+
+      - name: Build and push Docker image to ACR
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          ACR_REGISTRY=${{ secrets.ACR_REGISTRY }}
+          IMAGE_NAME=${{ secrets.IMAGE_NAME }}
+          docker build -t $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG .
+          docker push $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG
+          docker tag $ACR_REGISTRY/$IMAGE_NAME:$VERSION_TAG $ACR_REGISTRY/$IMAGE_NAME:latest
+          docker push $ACR_REGISTRY/$IMAGE_NAME:latest
+        
+  deploy-k8s-structure:
+    name: 🚀 Deploy K8S Structure
+    needs: 
+      - update-image  
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure Azure Credentials
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets  .AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":" ${{ secrets.AZURE_TENANT_ID }}"}'
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.AKS_CLUSTER_NAME }} --overwrite-existing --file ${{ github.workspace }}/kubeconfig
+        env:
+          RESOURCE_GROUP_NAME: ${{ secrets.RESOURCE_GROUP_NAME }}
+          AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+        shell: bash
+      - name: Update Deployment Image
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          IMAGE_NAME="${{ secrets.IMAGE_NAME }}:$VERSION_TAG"
+          sed -i "s|IMAGE_PLACEHOLDER|$IMAGE_NAME|g" ./deploy/deployment-api.yaml
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+      - name: Configure ConfigMap
+        run: |
+          POSTGRES_URL_VALUE="${{ secrets.POSTGRES_URL }}"
+          JWT_SECRET_VALUE="${{ secrets.JWT_SECRET }}"
+          sed -i "/POSTGRES_URL:/c\  POSTGRES_URL: \"$POSTGRES_URL_VALUE\"" ./deploy/configmap-api.yaml
+          sed -i "/JWT_SECRET:/c\  JWT_SECRET: \"$JWT_SECRET_VALUE\"" ./deploy/configmap-api.yaml
+        env:
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig
+      - name: Deploy to Kubernetes
+        run: |
+          export KUBECONFIG=${{ github.workspace }}/kubeconfig
+          kubectl apply -f ./deploy/
+          kubectl rollout restart deployment/deployment-api -n user-service

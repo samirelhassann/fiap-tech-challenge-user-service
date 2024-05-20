@@ -1,6 +1,6 @@
-@host = http://localhost:3001
+# @host = http://localhost:3001
 @service-prefix = user-service
-# @host = http://localhost:31100
+@host = http://172.212.52.159
 
 # @name register
 POST {{host}}/{{service-prefix}}/register
