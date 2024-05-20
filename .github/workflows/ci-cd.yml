@@ -3,8 +3,6 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'src/**'
   pull_request:
     branches: [ master ]
     paths:
@@ -100,7 +98,6 @@ jobs:
     needs: 
       - sonarcloud-analysis
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
       - name: Trigger Approve and Deploy Workflow
         env:
