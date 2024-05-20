@@ -31,29 +31,10 @@ jobs:
           name: coverage-report
           path: ./coverage
 
-  # run-bdd-tests:
-  #   name: 🧪 Run BDD Tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18
-  #         cache: 'yarn'
-  #     - run: yarn install --frozen-lockfile
-  #     - name: 'Create .env file'
-  #       run: |
-  #         touch .env
-  #         echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-  #         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-  #         cat .env
-  #     - run: yarn test:bdd
-
   sonarcloud-analysis:
     name: 🔍 SonarCloud Analysis
     needs: 
       - run-unit-tests
-      # - run-bdd-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,27 +70,32 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  detect-changes:
+    name: 📝 Detect changes in src
+    runs-on: ubuntu-latest
+    needs: 
+      - sonarcloud-analysis
+    outputs:
+      src-changed: ${{ steps.detect.outputs.src }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set output if src/ changed
+        id: detect
+        run: |
+          git fetch
+          git diff --quiet HEAD^ HEAD ./src || echo "src=true" >> $GITHUB_ENV
+
   update-image:
     name: 📝 Update Image
     needs: 
-      - sonarcloud-analysis
+      - detect-changes
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
-
-      # Stop job if no changes in src/
-      - name: Check for src changes
-        if: steps.filter.outputs.src == 'false'
-        run: echo "No changes in src/, skipping the rest of the job." && exit 0
 
       - name: Configure Azure Credentials
         uses: azure/login@v1
