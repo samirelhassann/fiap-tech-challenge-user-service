@@ -71,7 +71,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   changes:
-    name: 🔄 Changes
+    name: 🔄 /src changes ?
     needs: 
       - sonarcloud-analysis
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master'}}
