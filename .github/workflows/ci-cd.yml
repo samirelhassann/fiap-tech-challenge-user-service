@@ -81,12 +81,15 @@ jobs:
     outputs:
       src: ${{ steps.filter.outputs.src }}
     steps:
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          src:
-            - 'src/**'
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'src/**'
 
   update-image:
     name: 📝 Update Image
