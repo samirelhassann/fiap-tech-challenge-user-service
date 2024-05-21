@@ -1,18 +1,8 @@
-# FIAP SOAT - Grupo 65 - Tech Challenge #03 - Application
+# FIAP SOAT - Grupo 65 - Tech Challenge #04 - Application
 
-Repositório do Tech Challenge #03 da FIAP/Alura, no curso SOAT3. 
+Repositório do Tech Challenge #04 da FIAP/Alura, no curso SOAT3. 
 
-Este projeto é uma evolução do projeto do Tech Challenge #02. Nele foi realizado as seguintes implementações: 
-
-- Implementação JWT via [fastify-jwt](https://www.npmjs.com/package/@fastify/jwt)
-- Criado a esteira de DevOps para 
-  - Rodar os testes unitários da aplicação
-  - Rodar o [Sonar](https://sonarcloud.io/)
-  - Atualizar a imagem no [Azure Container Registry](https://azure.microsoft.com/en-us/products/container-registry)
-  - Deploy da aplicação no [Azure Kubernetes Services](https://azure.microsoft.com/pt-br/products/kubernetes-service)
-- Proteção da branch master não permitindo commits diretos, e realizando as devidas checagem via gh actions nos pull requests
-- Mudança na estrutura de usuários no banco de dados para melhor atender a autenticação via JWT e permissionamento via role (`ADMIN` e `CLIENT`)
-
+Este projeto é uma evolução do projeto do Tech Challenge #03.
 
 ## Como rodar a aplicação?
 
