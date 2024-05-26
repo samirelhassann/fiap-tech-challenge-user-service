@@ -1,6 +1,7 @@
 # FIAP SOAT - Grupo 65 - Tech Challenge #04 - User Service
 
-Repositório do Tech Challenge #04 da FIAP/Alura, no curso SOAT3. 
+Repositório do Tech Challenge #04 do curso [Software Architecture Pós Tech FIAP](https://postech.fiap.com.br/curso/software-architecture/).
+
 
 Este projeto é uma evolução do projeto do Tech Challenge #03. Nele é tratado o microserviço de usuario, lidando com criação, alteração e autenticação de usuário.
 
@@ -41,9 +42,16 @@ A aplicação estará disponível, por padrão, na rota [`http://localhost:3001`
 
 ## Como testar a aplicação?
 
-Rode o seguinte comando para rodar os testes unitários da aplicação: `yarn test`
+### Testes unitários
+Rode o seguinte comando para rodar os testes unitários da aplicação: `yarn test`.
+![image](https://github.com/samirelhassann/fiap-tech-challenge-04-user-service/assets/91634008/74af02b8-447b-4a98-b228-2536a409524a)
 
-Antes de rodar os testes de bdd, cetifique-se que o banco de dados está rodando via docker-compose: `docker-compose up -d`.Em seguida, rode o seguinte comando para rodar os testes de BDD (e2e) da aplicação: `yarn test:bdd`
+
+### Testes BDD
+Antes de rodar os testes de bdd, cetifique-se que o banco de dados está rodando via docker-compose: `docker-compose up -d`.Em seguida, rode o seguinte comando para rodar os testes de BDD (e2e) da aplicação: `yarn test:bdd`.
+![image](https://github.com/samirelhassann/fiap-tech-challenge-04-user-service/assets/91634008/07eb838f-ffea-4c14-bf75-ac1b00cc6241)
+
+
 
 ## Documentação
 
