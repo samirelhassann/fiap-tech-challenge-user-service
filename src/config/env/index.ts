@@ -9,6 +9,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string(),
+  SWAGGER_DOCS_URL: z.string().default("/docs-swagger"),
+  REDOC_URL: z.string().default("/docs"),
 });
 
 const _env = envSchema.safeParse(process.env);

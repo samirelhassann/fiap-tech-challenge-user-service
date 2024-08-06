@@ -20,7 +20,8 @@
     "pretest:bdd": "yarn test:create-prisma-environment && yarn test:install-prisma-environment",
     "test:bdd": "vitest run --dir test/bdd",
     "test:bdd:local": "docker-compose up -d && yarn test:bdd && docker-compose down",
-    "sonar": "node sonar-project.js"
+    "sonar": "node sonar-project.js",
+    "dependency:check": "dependency-check --project 'MeuProjetoNode' --scan ./ --out report"
   },
   "prisma": {
     "schema": "src/drivers/db/prisma/schema.prisma"
@@ -43,6 +44,7 @@
     "eslint-plugin-unused-imports": "3.0.0",
     "install": "0.13.0",
     "lint-staged": "15.2.2",
+    "owasp-dependency-check": "0.0.23",
     "prettier": "3.0.3",
     "prisma": "5.4.2",
     "sonarqube-scanner": "3.3.0",
@@ -60,7 +62,7 @@
     "@fastify/swagger": "8.11.0",
     "@fastify/swagger-ui": "1.10.1",
     "@prisma/client": "5.4.2",
-    "axios": "1.6.7",
+    "axios": "1.6.8",
     "dotenv": "16.3.1",
     "eslint": "8.51.0",
     "fastify": "4.24.1",

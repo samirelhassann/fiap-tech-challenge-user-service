@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, tech-challenge-05 ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, tech-challenge-05 ]
 
 jobs:
   run-unit-tests:
