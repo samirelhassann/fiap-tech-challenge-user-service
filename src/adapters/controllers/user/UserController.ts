@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 import { CheckUserByTaxvatPresenter } from "@/adapters/presenters/user/CheckUserByTaxvatPresenter";
+import { DeleteUserPresenter } from "@/adapters/presenters/user/DeleteUserPresenter";
 import { EditUserPresenter } from "@/adapters/presenters/user/EditUserPresenter";
 import { GetUserByIdPresenter } from "@/adapters/presenters/user/GetUserByIdPresenter";
 import { GetUsersPresenter } from "@/adapters/presenters/user/GetUsersPresenter";
@@ -18,7 +19,8 @@ export class UserController {
     private getUsersPresenter: GetUsersPresenter,
     private getUserByIdPresenter: GetUserByIdPresenter,
     private editUserPresenter: EditUserPresenter,
-    private checkUserByTaxvatPresenter: CheckUserByTaxvatPresenter
+    private checkUserByTaxvatPresenter: CheckUserByTaxvatPresenter,
+    private deleteUserPresenter: DeleteUserPresenter
   ) {}
 
   async getUsers(
@@ -68,6 +70,15 @@ export class UserController {
       .then((response) => this.editUserPresenter.sendResponse(res, response))
       .catch((error) =>
         this.editUserPresenter.convertErrorResponse(error, res)
+      );
+  }
+
+  async deleteUser(req: FastifyRequest, res: FastifyReply): Promise<void> {
+    return this.userUseCase
+      .deleteUser(this.deleteUserPresenter.convertToUseCaseDTO(req))
+      .then(() => this.deleteUserPresenter.sendResponse(res))
+      .catch((error) =>
+        this.deleteUserPresenter.convertErrorResponse(error, res)
       );
   }
 }

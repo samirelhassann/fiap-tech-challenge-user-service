@@ -91,4 +91,12 @@ export class PrismaUserRepository implements IUserRepository {
       })
       .then((c) => PrismaUserToDomainConverter.convert(c));
   }
+
+  async delete(id: string): Promise<void> {
+    await prisma.user.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }

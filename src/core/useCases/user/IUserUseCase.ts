@@ -2,6 +2,7 @@ import {
   CheckUserByTaxvatUseCaseRequestDTO,
   CheckUserByTaxvatUseCaseResponseDTO,
 } from "./dto/CheckUserByTaxvatUseCaseDTO";
+import { DeleteUserUseCaseRequestDTO } from "./dto/DeleteUserUseCaseDTO";
 import {
   EditUserUseCaseRequestDTO,
   EditUserUseCaseResponseDTO,
@@ -31,4 +32,6 @@ export interface IUserUseCase {
   editUser(
     props: EditUserUseCaseRequestDTO
   ): Promise<EditUserUseCaseResponseDTO>;
+
+  deleteUser(props: DeleteUserUseCaseRequestDTO): Promise<void>;
 }

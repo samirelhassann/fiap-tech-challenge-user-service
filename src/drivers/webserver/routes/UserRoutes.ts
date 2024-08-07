@@ -1,12 +1,14 @@
 import { FastifyInstance } from "fastify";
 
 import { checkUserByTaxvatDocSchema } from "@/adapters/controllers/user/schemas/CheckUserByTaxvatSchema";
+import { deleteUserDocSchema } from "@/adapters/controllers/user/schemas/DeleteUserSchema";
 import { editUserDocSchema } from "@/adapters/controllers/user/schemas/EditUserSchema";
 import { getUserByIdDocSchema } from "@/adapters/controllers/user/schemas/GetUserByIdSchema";
 import { getUsersDocSchema } from "@/adapters/controllers/user/schemas/GetUsersSchema";
 import { UserController } from "@/adapters/controllers/user/UserController";
 import verifyJwt from "@/adapters/middlewares/verifyJwt";
 import { CheckUserByTaxvatPresenter } from "@/adapters/presenters/user/CheckUserByTaxvatPresenter";
+import { DeleteUserPresenter } from "@/adapters/presenters/user/DeleteUserPresenter";
 import { EditUserPresenter } from "@/adapters/presenters/user/EditUserPresenter";
 import { GetUserByIdPresenter } from "@/adapters/presenters/user/GetUserByIdPresenter";
 import { GetUsersPresenter } from "@/adapters/presenters/user/GetUsersPresenter";
@@ -20,7 +22,8 @@ export async function UserRoutes(app: FastifyInstance) {
     new GetUsersPresenter(),
     new GetUserByIdPresenter(),
     new EditUserPresenter(),
-    new CheckUserByTaxvatPresenter()
+    new CheckUserByTaxvatPresenter(),
+    new DeleteUserPresenter()
   );
 
   app.get("", {
@@ -41,6 +44,12 @@ export async function UserRoutes(app: FastifyInstance) {
   app.put("/:id", {
     schema: editUserDocSchema,
     handler: userController.editUser.bind(userController),
+    preHandler: [verifyJwt()],
+  });
+
+  app.delete("/:id", {
+    schema: deleteUserDocSchema,
+    handler: userController.deleteUser.bind(userController),
     preHandler: [verifyJwt()],
   });
 }
